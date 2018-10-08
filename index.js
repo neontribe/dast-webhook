@@ -1,7 +1,6 @@
 "use strict";
 require("dotenv").config();
-require("./components/results-calculator");
-
+const ResultsCalculator = require('./components/results-calculator');
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express().use(bodyParser.json()); // creates http server
@@ -46,7 +45,7 @@ app.post("/", (req, res) => {
   // final question leads to score calculation
   if (result.interaction.name === "end quiz") {
     console.log("quiz ended");
-    resultsCalculator = new ResultsCalculator(res, session);
+    const resultsCalculator = new ResultsCalculator(res, session);
     resultsCalculator.evaluate();
   }
 

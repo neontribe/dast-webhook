@@ -48,7 +48,7 @@ class ResultsCalculator {
   recentTreatment() {
     return this.session.useInteractions.treatmentAnswer !== "currently";
   }
-
+// make evaluate into fat arrow ?
   evaluate() {
     switch (true) {
       case countAnswers(this.answers, "yes") === 0:
