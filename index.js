@@ -47,6 +47,7 @@ app.post("/", (req, res) => {
   if (result.interaction.name === "end quiz") {
     console.log("quiz ended");
 
+
     var answers = Object.values(session.scoreInteractions);
     var drugCategories = Object.keys(session.drugInteractions);
     var search = "yes";
@@ -96,28 +97,15 @@ app.post("/", (req, res) => {
 
       case count > 0 &&
         count <= 2 &&
-        (session.useInteractions.usageFrequencyAnswer !== "daily/almost daily" ||
+        (session.useInteractions.usageFrequencyAnswer !==
+          "daily/almost daily" ||
           (session.useInteractions.usageFrequencyAnswer === "weekly" &&
             (drugCategories.includes("methamphetamines") ||
               drugCategories.includes("cocaine") ||
-              drugCategories.includes("narcotics")) &&
-            session.useInteractions.injectionAnswer !== "in the past 90 days" &&
+              drugCategories.includes("narcotics")) ||
+            session.useInteractions.injectionAnswer !== "in the past 90 days" ||
             session.useInteractions.treatmentAnswer !== "currently")):
-        const riskyAdvice = {
-          responses: [
-            {
-              type: "text",
-              elements: ["risky - provide advice"]
-            }
-          ]
-        };
-
-        return res.json(riskyAdvice);
-        break;
-
-      default:
-        const risky = {
-          sessionAttributes: { save: "me" },
+        const riskyIntervention = {
           responses: [
             {
               type: "text",
@@ -126,7 +114,21 @@ app.post("/", (req, res) => {
           ]
         };
 
-        return res.json(risky);
+        return res.json(riskyIntervention);
+        break;
+
+      default:
+        const riskyAdvice = {
+          sessionAttributes: { save: "me" },
+          responses: [
+            {
+              type: "text",
+              elements: ["risky - advise"]
+            }
+          ]
+        };
+
+        return res.json(riskyAdvice);
         break;
     }
   }
@@ -163,7 +165,7 @@ app.post("/", (req, res) => {
       return res.sendStatus(403);
   }
 
-  console.log(session);
+  console.log(session)
   return res.json(response);
 });
 
