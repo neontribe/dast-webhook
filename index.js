@@ -29,8 +29,9 @@ app.post("/", (req, res) => {
   const result = req.body.result;
   const id = req.body.conversationId;
   let session = sessions[id];
+  //7fbd6081.ngrok.io
 
-  if (!session) {
+  http: if (!session) {
     session = {
       id,
 
@@ -41,22 +42,95 @@ app.post("/", (req, res) => {
 
     sessions[id] = session;
   }
-  console.log(result.interaction.name.substring(0, 5));
-  console.log(result.resolvedQuery);
 
+  // final question leads to score calculation
   if (result.interaction.name === "end quiz") {
-    console.log(session);
-    //logic here adding up etc
+    console.log("quiz ended");
 
-    // name final question in botengine
-    // add values for scoreInteractions
-    // if 0 - healthy
-    // if 1 - 2
-    // && useInteractions["use frequency"] !== "Daily or almost daily"
-    // && drugInteractions does not contain "cocaine", "methamphetamines" or "narcotics (heroin, oxycodone, methadone, etc.)"
-    // && useInteractions["injection"] !== "Yes, in the past 90 days"
-    // && useInteractions["treatment"] !== "currently"
+    var answers = Object.values(session.scoreInteractions);
+    var drugCategories = Object.keys(session.drugInteractions);
+    var search = "yes";
+
+    var count = answers.reduce(function(n, val) {
+      return n + (val === search);
+    }, 0);
+
+    switch (true) {
+      case count === 0:
+        const healthy = {
+          responses: [
+            {
+              type: "text",
+              elements: ["healthy - no action required"]
+            }
+          ]
+        };
+        return res.json(healthy);
+        break;
+
+      case count >= 3 && count < 6:
+        const harmful = {
+          responses: [
+            {
+              type: "text",
+              elements: ["harmful - brief intervention/brief treatment"]
+            }
+          ]
+        };
+
+        return res.json(harmful);
+        break;
+
+      case count >= 6:
+        const dependant = {
+          responses: [
+            {
+              type: "text",
+              elements: ["dependant - refer to specialised treatment"]
+            }
+          ]
+        };
+        return res.json(dependant);
+        break;
+
+      case count > 0 &&
+        count <= 2 &&
+        (session.useInteractions.usageFrequencyAnswer !==
+          "daily/almost daily" ||
+          ((session.useInteractions.usageFrequencyAnswer === "weekly" &&
+            (drugCategories.includes("methamphetamines") ||
+              drugCategories.includes("cocaine") ||
+              drugCategories.includes("narcotics"))) ||
+            session.useInteractions.injectionAnswer !== "in the past 90 days" ||
+            session.useInteractions.treatmentAnswer !== "currently")):
+        const riskyIntervention = {
+          responses: [
+            {
+              type: "text",
+              elements: ["risky - brief intervention"]
+            }
+          ]
+        };
+
+        return res.json(riskyIntervention);
+        break;
+
+      default:
+        const riskyAdvice = {
+          sessionAttributes: { save: "me" },
+          responses: [
+            {
+              type: "text",
+              elements: ["risky - advise"]
+            }
+          ]
+        };
+
+        return res.json(riskyAdvice);
+        break;
+    }
   }
+
   const response = {
     sessionAttributes: { save: "me" },
     responses: [
@@ -70,13 +144,11 @@ app.post("/", (req, res) => {
   //identify if final or not to separate final question out
   switch (result.interaction.name.substring(0, 5)) {
     case "categ":
-      console.log("switch works");
-      session.drugInteractions[result.interaction.name] = result.resolvedQuery;
+      session.drugInteractions[result.resolvedQuery] = true;
       break;
     case "usage":
       session.useInteractions[result.interaction.name] = result.resolvedQuery;
       break;
-      console.log(session);
     case "injec":
       session.useInteractions[result.interaction.name] = result.resolvedQuery;
       break;
@@ -85,6 +157,7 @@ app.post("/", (req, res) => {
       break;
     case "score":
       session.scoreInteractions[result.interaction.name] = result.resolvedQuery;
+      break;
     default:
       // we have no idea
       return res.sendStatus(403);
