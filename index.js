@@ -48,14 +48,13 @@ app.post("/", (req, res) => {
     console.log("quiz ended");
 
     var answers = Object.values(session.scoreInteractions);
-    var drugCategories = Object.keys(session.scoreInteractions);
+    var drugCategories = Object.keys(session.drugInteractions);
     var search = "yes";
 
     var count = answers.reduce(function(n, val) {
       return n + (val === search);
     }, 0);
-    console.log("count", count)
-    console.log(count >= 3 && count < 6)
+
 
     switch (true) {
       case count === 0:
@@ -92,12 +91,12 @@ app.post("/", (req, res) => {
             }
           ]
         };
-        return res.json(harmful);
+        return res.json(dependant);
         break;
 
       case count > 0 &&
         count <= 2 &&
-        (session.useInteractions.usageFrequencyAnswer !== "daily" ||
+        (session.useInteractions.usageFrequencyAnswer !== "daily/almost daily" ||
           (session.useInteractions.usageFrequencyAnswer === "weekly" &&
             (drugCategories.includes("methamphetamines") ||
               drugCategories.includes("cocaine") ||
