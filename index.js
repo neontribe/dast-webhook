@@ -47,7 +47,6 @@ app.post("/", (req, res) => {
   if (result.interaction.name === "end quiz") {
     console.log("quiz ended");
 
-
     var answers = Object.values(session.scoreInteractions);
     var drugCategories = Object.keys(session.drugInteractions);
     var search = "yes";
@@ -55,7 +54,6 @@ app.post("/", (req, res) => {
     var count = answers.reduce(function(n, val) {
       return n + (val === search);
     }, 0);
-
 
     switch (true) {
       case count === 0:
@@ -99,10 +97,10 @@ app.post("/", (req, res) => {
         count <= 2 &&
         (session.useInteractions.usageFrequencyAnswer !==
           "daily/almost daily" ||
-          (session.useInteractions.usageFrequencyAnswer === "weekly" &&
+          ((session.useInteractions.usageFrequencyAnswer === "weekly" &&
             (drugCategories.includes("methamphetamines") ||
               drugCategories.includes("cocaine") ||
-              drugCategories.includes("narcotics")) ||
+              drugCategories.includes("narcotics"))) ||
             session.useInteractions.injectionAnswer !== "in the past 90 days" ||
             session.useInteractions.treatmentAnswer !== "currently")):
         const riskyIntervention = {
@@ -165,7 +163,7 @@ app.post("/", (req, res) => {
       return res.sendStatus(403);
   }
 
-  console.log(session)
+  console.log(session);
   return res.json(response);
 });
 
