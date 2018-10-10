@@ -1,27 +1,21 @@
 class ResultsCalculator {
-  constructor(res, session) {
-    this.res = res;
+  constructor(session) {
     this.session = session;
     this.answers = Object.values(this.session.scoreInteractions);
     this.drugCategories = Object.keys(this.session.drugInteractions);
+    this.results = {
+      healthy: "healthy - no action required",
+      riskyAdvice: "risky - advise",
+      riskyIntervention: "risky - brief intervention",
+      harmful: "harmful - brief intervention/brief treatment",
+      dependant: "dependant - refer to specialised treatment"
+    };
   }
 
   countAnswers(array, searchTerm) {
-    this.answers.reduce(function(n, val) {
+    return array.reduce(function(n, val) {
       return n + (val === searchTerm);
     }, 0);
-  }
-
-  resultSummary(text) {
-    const result = {
-      responses: [
-        {
-          type: "text",
-          elements: [text]
-        }
-      ]
-    };
-    return this.res.json(result);
   }
 
   dailyUse() {
@@ -48,33 +42,33 @@ class ResultsCalculator {
   recentTreatment() {
     return this.session.useInteractions.treatmentAnswer !== "currently";
   }
-// make evaluate into fat arrow ?
+
   evaluate() {
     switch (true) {
-      case countAnswers(this.answers, "yes") === 0:
-        resultSummary("healthy - no action required");
+      case this.countAnswers(this.answers, "yes") === 0:
+        return this.results.healthy;
         break;
 
-      case countAnswers(this.answers, "yes") >= 3 &&
-        countAnswers(this.answers, "yes") < 6:
-        resultSummary("harmful - brief intervention/brief treatment");
+      case this.countAnswers(this.answers, "yes") > 0 &&
+        this.countAnswers(this.answers, "yes") <= 2 &&
+        (this.dailyUse() ||
+          this.weeklyUseOfSpecificCategories() ||
+          this.injectionHistory() ||
+          this.recentTreatment()):
+        return this.results.riskyIntervention;
         break;
 
-      case countAnswers(this.answers, "yes") >= 6:
-        resultSummary("dependant - refer to specialised treatment");
+      case this.countAnswers(this.answers, "yes") >= 3 &&
+        this.countAnswers(this.answers, "yes") < 6:
+        return this.results.harmful;
         break;
 
-      case countAnswers(this.answers, "yes") > 0 &&
-        countAnswers(this.answers, "yes") <= 2 &&
-        (dailyUse() ||
-          weeklyUseOfSpecificCategories() ||
-          injectionHistory() ||
-          recentTreatment()):
-        resultSummary("risky - brief intervention");
+      case this.countAnswers(this.answers, "yes") >= 6:
+        return this.results.dependant
         break;
 
       default:
-        resultSummary("risky - advise");
+        return this.results.riskyAdvice;
         break;
     }
   }

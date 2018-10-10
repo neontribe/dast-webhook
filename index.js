@@ -45,9 +45,18 @@ app.post("/", (req, res) => {
   // final question leads to score calculation
   if (result.interaction.name === "end quiz") {
     console.log("quiz ended");
-    const resultsCalculator = new ResultsCalculator(res, session);
-    resultsCalculator.evaluate();
+    const resultsCalculator = new ResultsCalculator(session);
+    let result = {
+      responses: [
+        {
+          type: "text",
+          elements: [resultsCalculator.evaluate()]
+        }
+      ]
+    };
+    return res.json(result);
   }
+
 
     const response = {
       sessionAttributes: { save: "me" },
@@ -59,7 +68,7 @@ app.post("/", (req, res) => {
       ]
     };
 
-    //identify if final or not to separate final question out
+
     switch (result.interaction.name.substring(0, 5)) {
       case "categ":
         session.drugInteractions[result.resolvedQuery] = true;
