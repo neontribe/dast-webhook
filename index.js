@@ -30,7 +30,7 @@ app.post("/", (req, res) => {
   let session = sessions[id];
   //7fbd6081.ngrok.io
 
-  http: if (!session) {
+  if (!session) {
     session = {
       id,
 
