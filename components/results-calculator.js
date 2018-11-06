@@ -4,11 +4,11 @@ class ResultsCalculator {
     this.answers = Object.values(this.session.scoreInteractions);
     this.drugCategories = Object.keys(this.session.drugInteractions);
     this.results = {
-      healthy: "healthy - no action required",
-      riskyAdvice: "risky - advise",
-      riskyIntervention: "risky - brief intervention",
-      harmful: "harmful - brief intervention/brief treatment",
-      dependant: "dependant - refer to specialised treatment"
+      healthy: "Your drug use is not having much negative impact on your well being.  But if you would like to talk about some tips to stay safe please  have a chat",
+      riskyAdvice: "Your drug use would be classed as risky.  You can chat with one of our advisors on ways to stay safe or check out the resources page for tips.",
+      riskyIntervention: "Your drug use would be classed as Risky - You can chat with one of our advisors on ways to stay safe or check out the resources page for tips.",
+      harmful: "Your drug use is classed as Harmful.  It is having an impact on your well being.   If you would like to chat this through with someone anonymously  or tips on reducing the harm of drugs.",
+      dependant: "Your drug use is having a significant impact on your well being.  You may benefit from medical input or having a chat with a professional."
     };
   }
 
@@ -27,9 +27,9 @@ class ResultsCalculator {
   weeklyUseOfSpecificCategories() {
     return (
       this.session.useInteractions.usageFrequencyAnswer === "weekly" &&
-      (this.drugCategories.includes("methamphetamines") ||
+      (this.drugCategories.includes("speed") ||
         this.drugCategories.includes("cocaine") ||
-        this.drugCategories.includes("narcotics"))
+        this.drugCategories.includes("opiates"))
     );
   }
 
