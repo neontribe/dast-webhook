@@ -59,7 +59,7 @@ app.post("/", (req, res) => {
 
 
     const response = {
-      sessionAttributes: { save: "me" },
+      parameters: { save: "me" },
       responses: [
         {
           type: "text",
