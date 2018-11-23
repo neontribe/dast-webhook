@@ -63,7 +63,7 @@ app.post("/", (req, res) => {
       responses: [
         {
           type: "text",
-          elements: ["thank you for your answer", "thanks", "thank you"]
+          elements: ["", "thanks"]
         }
       ]
     };
